@@ -23,8 +23,8 @@ const Contact = () => {
     setIsSubmitting(true);
 
     emailjs
-      .sendForm(SERVICE_ID,TEMPLATE_ID, form.current, {
-        publicKey: USER_ID,
+      .sendForm(SERVICE,TEMPLATE, form.current, {
+        publicKey: USER,
       })
       .then(
         () => {
