@@ -10,6 +10,7 @@ const Contact = () => {
     message: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState('');
 
   const handleChange = (e) => {
     setFormData({
@@ -21,20 +22,23 @@ const Contact = () => {
   const sendEmail = (e) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setSubmitStatus('');
 
     emailjs
-      .sendForm(SERVICE_ID,TEMPLATE_ID, form.current, {
-        publicKey: USER_ID,
-      })
+      .sendForm(
+        'service_1sfqq8u',
+        'template_n7c2uei',
+        form.current,
+        'bmqHVodIamLamEIIe'
+      )
       .then(
         () => {
-          console.log('SUCCESS!');
-          alert('Thank you for your message!');
+          setSubmitStatus('Thank you for your message!');
           setFormData({ user_name: '', user_email: '', message: '' });
         },
         (error) => {
-          console.log('FAILED...', error.text);
-          alert('Failed to send message. Please try again.');
+          console.error('FAILED...', error.text);
+          setSubmitStatus('Failed to send message. Please try again.');
         },
       )
       .finally(() => {
@@ -52,7 +56,7 @@ const Contact = () => {
         {[...Array(50)].map((_, i) => (
           <div 
             key={i} 
-            className="absolute bg-white rounded-full opacity-10"
+            className="absolute bg-white rounded-full opacity-10 animate-float"
             style={{
               width: `${Math.random() * 20 + 5}px`,
               height: `${Math.random() * 20 + 5}px`,
@@ -67,6 +71,11 @@ const Contact = () => {
       <div className="w-full lg:w-1/2 bg-gray-900 p-12 flex items-center justify-center">
         <div className="w-full max-w-md">
           <h2 className="text-3xl font-bold mb-8 text-white">Contact Us</h2>
+          {submitStatus && (
+            <div className={`mb-4 p-3 rounded ${submitStatus.includes('Thank you') ? 'bg-green-500' : 'bg-red-500'} text-white`}>
+              {submitStatus}
+            </div>
+          )}
           <form ref={form} onSubmit={sendEmail} className="space-y-6">
             <div className="relative">
               <input
@@ -77,8 +86,9 @@ const Contact = () => {
                 required
                 className="w-full bg-gray-800 text-white border-0 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
                 placeholder="Your Name"
+                aria-label="Your Name"
               />
-              <User className="absolute right-3 top-3 h-5 w-5 text-gray-400" />
+              <User className="absolute right-3 top-3 h-5 w-5 text-gray-400" aria-hidden="true" />
             </div>
             <div className="relative">
               <input
@@ -89,8 +99,9 @@ const Contact = () => {
                 required
                 className="w-full bg-gray-800 text-white border-0 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
                 placeholder="Your Email"
+                aria-label="Your Email"
               />
-              <Mail className="absolute right-3 top-3 h-5 w-5 text-gray-400" />
+              <Mail className="absolute right-3 top-3 h-5 w-5 text-gray-400" aria-hidden="true" />
             </div>
             <div className="relative">
               <textarea
@@ -101,8 +112,9 @@ const Contact = () => {
                 rows="4"
                 className="w-full bg-gray-800 text-white border-0 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all resize-none"
                 placeholder="Your Message"
+                aria-label="Your Message"
               ></textarea>
-              <MessageSquare className="absolute right-3 top-3 h-5 w-5 text-gray-400" />
+              <MessageSquare className="absolute right-3 top-3 h-5 w-5 text-gray-400" aria-hidden="true" />
             </div>
             <button
               type="submit"
@@ -110,12 +122,13 @@ const Contact = () => {
               className={`w-full flex justify-center items-center px-4 py-3 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all ${
                 isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
               }`}
+              aria-label="Send Message"
             >
               {isSubmitting ? (
                 'Sending...'
               ) : (
                 <>
-                  <Send className="h-5 w-5 mr-2" />
+                  <Send className="h-5 w-5 mr-2" aria-hidden="true" />
                   Send Message
                 </>
               )}
