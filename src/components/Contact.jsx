@@ -1,13 +1,15 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
+import emailjs from '@emailjs/browser';
 import { Send, User, Mail, MessageSquare } from 'lucide-react';
 
-const ContactForm = () => {
+const Contact = () => {
+  const form = useRef();
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    subject: '',
+    user_name: '',
+    user_email: '',
     message: ''
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e) => {
     setFormData({
@@ -16,100 +18,113 @@ const ContactForm = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const sendEmail = (e) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
-    alert('Thank you for your message!');
-    setFormData({ name: '', email: '', subject: '', message: '' });
+    setIsSubmitting(true);
+
+    emailjs
+      .sendForm(SERVICE_ID,TEMPLATE_ID, form.current, {
+        publicKey: USER_ID,
+      })
+      .then(
+        () => {
+          console.log('SUCCESS!');
+          alert('Thank you for your message!');
+          setFormData({ user_name: '', user_email: '', message: '' });
+        },
+        (error) => {
+          console.log('FAILED...', error.text);
+          alert('Failed to send message. Please try again.');
+        },
+      )
+      .finally(() => {
+        setIsSubmitting(false);
+      });
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-blue-100 to-purple-100">
-      <div className="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
-        <h2 className="text-3xl font-bold mb-6 text-center text-gray-800">Contact Us</h2>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="relative">
-            <label className="text-sm font-medium text-gray-700" htmlFor="name">
-              Name
-            </label>
-            <div className="mt-1 relative rounded-md shadow-sm">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <User className="h-5 w-5 text-gray-400" />
-              </div>
+    <div className="flex min-h-screen">
+      <div className="hidden lg:flex lg:w-1/2 bg-purple-700 justify-center items-center relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-600 to-indigo-800"></div>
+        <div className="absolute inset-0 flex items-center justify-center z-10">
+          <h1 className="text-5xl font-bold text-white text-center">Let's Connect</h1>
+        </div>
+        {[...Array(50)].map((_, i) => (
+          <div 
+            key={i} 
+            className="absolute bg-white rounded-full opacity-10"
+            style={{
+              width: `${Math.random() * 20 + 5}px`,
+              height: `${Math.random() * 20 + 5}px`,
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animationDuration: `${Math.random() * 10 + 5}s`,
+              animationDelay: `${Math.random() * 2}s`
+            }}
+          ></div>
+        ))}
+      </div>
+      <div className="w-full lg:w-1/2 bg-gray-900 p-12 flex items-center justify-center">
+        <div className="w-full max-w-md">
+          <h2 className="text-3xl font-bold mb-8 text-white">Contact Us</h2>
+          <form ref={form} onSubmit={sendEmail} className="space-y-6">
+            <div className="relative">
               <input
                 type="text"
-                name="name"
-                value={formData.name}
+                name="user_name"
+                value={formData.user_name}
                 onChange={handleChange}
                 required
-                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                placeholder="John Doe"
+                className="w-full bg-gray-800 text-white border-0 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
+                placeholder="Your Name"
               />
+              <User className="absolute right-3 top-3 h-5 w-5 text-gray-400" />
             </div>
-          </div>
-          <div className="relative">
-            <label className="text-sm font-medium text-gray-700" htmlFor="email">
-              Email
-            </label>
-            <div className="mt-1 relative rounded-md shadow-sm">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Mail className="h-5 w-5 text-gray-400" />
-              </div>
+            <div className="relative">
               <input
                 type="email"
-                name="email"
-                value={formData.email}
+                name="user_email"
+                value={formData.user_email}
                 onChange={handleChange}
                 required
-                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                placeholder="johndoe@example.com"
+                className="w-full bg-gray-800 text-white border-0 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
+                placeholder="Your Email"
               />
+              <Mail className="absolute right-3 top-3 h-5 w-5 text-gray-400" />
             </div>
-          </div>
-          <div>
-            <label className="text-sm font-medium text-gray-700" htmlFor="subject">
-              Subject
-            </label>
-            <input
-              type="text"
-              name="subject"
-              value={formData.subject}
-              onChange={handleChange}
-              required
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-              placeholder="What's this about?"
-            />
-          </div>
-          <div>
-            <label className="text-sm font-medium text-gray-700" htmlFor="message">
-              Message
-            </label>
-            <div className="mt-1 relative rounded-md shadow-sm">
-              <div className="absolute top-3 left-3 pointer-events-none">
-                <MessageSquare className="h-5 w-5 text-gray-400" />
-              </div>
+            <div className="relative">
               <textarea
                 name="message"
                 value={formData.message}
                 onChange={handleChange}
                 required
-                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                rows="5"
-                placeholder="Your message here..."
-              />
+                rows="4"
+                className="w-full bg-gray-800 text-white border-0 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all resize-none"
+                placeholder="Your Message"
+              ></textarea>
+              <MessageSquare className="absolute right-3 top-3 h-5 w-5 text-gray-400" />
             </div>
-          </div>
-          <button
-            type="submit"
-            className="w-full flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-          >
-            <Send className="h-5 w-5 mr-2" />
-            Send Message
-          </button>
-        </form>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className={`w-full flex justify-center items-center px-4 py-3 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all ${
+                isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
+            >
+              {isSubmitting ? (
+                'Sending...'
+              ) : (
+                <>
+                  <Send className="h-5 w-5 mr-2" />
+                  Send Message
+                </>
+              )}
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   );
 };
 
-export default ContactForm;
+export default Contact;
