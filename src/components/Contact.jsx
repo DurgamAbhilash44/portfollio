@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 import emailjs from '@emailjs/browser';
 import { Send, User, Mail, MessageSquare } from 'lucide-react';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
 const Contact = () => {
   const form = useRef();
@@ -10,6 +11,7 @@ const Contact = () => {
     message: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [alert, setAlert] = useState({ type: '', message: '' });
 
   const handleChange = (e) => {
     setFormData({
@@ -21,20 +23,23 @@ const Contact = () => {
   const sendEmail = (e) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setAlert({ type: '', message: '' });
 
     emailjs
-      .sendForm(SERVICE,TEMPLATE, form.current, {
-        publicKey: USER,
-      })
+      .sendForm(
+        process.env.REACT_APP_EMAILJS_SERVICE_ID,
+        process.env.REACT_APP_EMAILJS_TEMPLATE_ID,
+        form.current,
+        process.env.REACT_APP_EMAILJS_PUBLIC_KEY
+      )
       .then(
         () => {
-          console.log('SUCCESS!');
-          alert('Thank you for your message!');
+          setAlert({ type: 'success', message: 'Thank you for your message!' });
           setFormData({ user_name: '', user_email: '', message: '' });
         },
         (error) => {
-          console.log('FAILED...', error.text);
-          alert('Failed to send message. Please try again.');
+          console.error('FAILED...', error.text);
+          setAlert({ type: 'error', message: 'Failed to send message. Please try again.' });
         },
       )
       .finally(() => {
@@ -52,7 +57,7 @@ const Contact = () => {
         {[...Array(50)].map((_, i) => (
           <div 
             key={i} 
-            className="absolute bg-white rounded-full opacity-10"
+            className="absolute bg-white rounded-full opacity-10 animate-float"
             style={{
               width: `${Math.random() * 20 + 5}px`,
               height: `${Math.random() * 20 + 5}px`,
@@ -67,6 +72,12 @@ const Contact = () => {
       <div className="w-full lg:w-1/2 bg-gray-900 p-12 flex items-center justify-center">
         <div className="w-full max-w-md">
           <h2 className="text-3xl font-bold mb-8 text-white">Contact Us</h2>
+          {alert.type && (
+            <Alert className={`mb-4 ${alert.type === 'success' ? 'bg-green-500' : 'bg-red-500'}`}>
+              <AlertTitle>{alert.type === 'success' ? 'Success' : 'Error'}</AlertTitle>
+              <AlertDescription>{alert.message}</AlertDescription>
+            </Alert>
+          )}
           <form ref={form} onSubmit={sendEmail} className="space-y-6">
             <div className="relative">
               <input
